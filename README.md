@@ -40,3 +40,11 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 To learn React, check out the [React documentation](https://reactjs.org/).
 
 [React TypeScript cheetseat](https://react-typescript-cheatsheet.netlify.app/)
+
+## Explanation of code
+
+In the line void axios.get<void>(${apiBaseUrl}/ping) in App.tsx, both instances of void have different purposes:
+
+    The first void: This is used to indicate that the function call axios.get<void>(...) doesn't return a value (i.e., its return value is void). It's saying that the result of the axios.get call is being intentionally ignored.
+
+    The second <void>: This is a TypeScript generic type parameter. It's used to specify the expected type of the response data when making an HTTP request using Axios. In this case, it's telling TypeScript that the response from the GET request is expected to have no data (i.e., it's void).
