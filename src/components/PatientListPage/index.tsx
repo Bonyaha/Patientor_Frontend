@@ -10,11 +10,11 @@ import HealthRatingBar from "../HealthRatingBar";
 import patientService from "../../services/patients";
 
 interface Props {
-  patients : Patient[]
+  patients: Patient[]
   setPatients: React.Dispatch<React.SetStateAction<Patient[]>>
 }
 
-const PatientListPage = ({ patients, setPatients } : Props ) => {
+const PatientListPage = ({ patients, setPatients }: Props) => {
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string>();
@@ -25,6 +25,8 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
     setModalOpen(false);
     setError(undefined);
   };
+
+  console.log(patients);
 
   const submitNewPatient = async (values: PatientFormValues) => {
     try {
