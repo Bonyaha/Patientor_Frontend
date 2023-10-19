@@ -71,20 +71,24 @@ const PatientDetailPage = () => {
 					<Typography>ssn: {patient.ssn}</Typography>
 					<Typography>occupation: {patient.occupation}</Typography>
 					<Typography variant="h5">Entries:</Typography>
-					{patient.entries.map((entry, index) => (
-						<div key={index}>
-							<Typography>{entry.date} <i>{entry.description}</i></Typography>
-							{entry.diagnosisCodes ? (
-								<List dense disablePadding>
-									{entry.diagnosisCodes.map((code, codeIndex) => (
-										<ListItem key={codeIndex}>
-											<ListItemText primary={code} secondary={getDiagnosisDescription(code)} />
-										</ListItem>
-									))}
-								</List>
-							) : null}
-						</div>
-					))}
+					{patient.entries.length > 0 ?
+
+						patient.entries.map((entry, index) => (
+							<div key={index}>
+								<Typography>{entry.date} <i>{entry.description}</i></Typography>
+								{entry.diagnosisCodes ? (
+									<List dense disablePadding>
+										{entry.diagnosisCodes.map((code, codeIndex) => (
+											<ListItem key={codeIndex}>
+												<ListItemText primary={code} secondary={getDiagnosisDescription(code)} />
+											</ListItem>
+										))}
+									</List>
+								) : null}
+							</div>
+						))
+						: 'No data'}
+
 				</Box>
 			) : (
 				<div>Loading...</div>
