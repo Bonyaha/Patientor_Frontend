@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText } from '@mui/material';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import patientService from '../../services/patients';
@@ -37,15 +37,29 @@ const PatientDetailPage = () => {
 
 	};
 
+	console.log(patient);
+
 	return (
 		<div>
-			<Typography variant="h4">Patient Information</Typography>
 			{patient ? (
 				<Box>
-					<Typography>Name: {patient.name} {getGenderIcon(patient.gender)}</Typography>
+					<Typography variant="h4">{patient.name} {getGenderIcon(patient.gender)}</Typography>
 					<Typography>ssn: {patient.ssn}</Typography>
-					<Typography>Occupation: {patient.occupation}</Typography>
-					{/* Add more patient information fields here */}
+					<Typography>occupation: {patient.occupation}</Typography>
+					<Typography variant="h5">Entries:</Typography>
+					<Typography>{patient.entries[0].date} <i>{patient.entries[0].description}</i></Typography>
+					{patient.entries[0].diagnosisCodes ? (
+						<>
+							{/* <Typography variant="h6">Diagnosis Codes:</Typography> */}
+							<List dense disablePadding>
+								{patient.entries[0].diagnosisCodes.map((code, index) => (
+									<ListItem key={index}>
+										<ListItemText primary={code} />
+									</ListItem>
+								))}
+							</List>
+						</>
+					) : null}
 				</Box>
 			) : (
 				<div>Loading...</div>
