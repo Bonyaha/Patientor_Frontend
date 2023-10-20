@@ -22,17 +22,15 @@ const healthCheckRatingToHeartIcon = {
 	[HealthCheckRating.HighRisk]: <FavoriteIcon style={{ color: 'red' }} />,
 	[HealthCheckRating.CriticalRisk]: <FavoriteIcon style={{ color: 'red' }} />
 };
-
+const cardStyle = {
+	border: '1px solid #ccc',
+	padding: '10px',
+	margin: '10px',
+	display: 'flex',
+	alignItems: 'center',
+};
 
 const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
-	const cardStyle = {
-		border: '1px solid #ccc',
-		padding: '10px',
-		margin: '10px',
-		display: 'flex',
-		alignItems: 'center',
-	};
-
 	let icon;
 	switch (entry.type) {
 		case 'HealthCheck':
@@ -143,15 +141,21 @@ const PatientDetailPage = () => {
 						patient.entries.map((entry, index) => (
 							<div key={index}>
 								<EntryDetails entry={entry} />
-								{entry.diagnosisCodes ? (
-									<List dense disablePadding>
-										{entry.diagnosisCodes.map((code, codeIndex) => (
-											<ListItem key={codeIndex}>
-												<ListItemText primary={code} secondary={getDiagnosisDescription(code)} />
-											</ListItem>
-										))}
-									</List>
-								) : null}
+								<Typography variant="h5">Codes:</Typography>
+								<Card style={cardStyle}>
+									<CardContent>
+										{entry.diagnosisCodes ? (
+											<List dense disablePadding>
+												{entry.diagnosisCodes.map((code, codeIndex) => (
+													<ListItem key={codeIndex}>
+														<ListItemText primary={code} secondary={getDiagnosisDescription(code)} />
+													</ListItem>
+												))}
+											</List>
+										) : null}
+									</CardContent>
+								</Card>
+
 							</div>
 						))
 						: 'No data'}
