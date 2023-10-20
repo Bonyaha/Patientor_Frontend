@@ -1,13 +1,83 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, List, ListItem, ListItemText } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Card, CardContent } from '@mui/material';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import patientService from '../../services/patients';
 import diagnosesService from '../../services/diagnoses';
-
-import { Diagnosis, Patient, Gender } from "../../types";
 import TransgenderIcon from '@mui/icons-material/Transgender';
+import { LocalHospital as HospitalIcon, MedicalServices as MedicalServicesIcon, Work as WorkIcon, Favorite as FavoriteIcon } from '@mui/icons-material';
+
+import { Diagnosis, Patient, Gender, Entry, HealthCheckRating } from "../../types";
+
+const assertNever = (value: never): never => {
+	throw new Error(
+		`Unhandled discriminated union member: ${JSON.stringify(value)}`
+	);
+};
+
+const healthCheckRatingToHeartIcon = {
+	[HealthCheckRating.Healthy]: <FavoriteIcon style={{ color: 'green' }} />,
+	[HealthCheckRating.LowRisk]: <FavoriteIcon style={{ color: 'yellow' }} />,
+	[HealthCheckRating.HighRisk]: <FavoriteIcon style={{ color: 'red' }} />,
+	[HealthCheckRating.CriticalRisk]: <FavoriteIcon style={{ color: 'red' }} />
+};
+
+
+const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
+	const cardStyle = {
+		border: '1px solid #ccc',
+		padding: '10px',
+		margin: '10px',
+		display: 'flex',
+		alignItems: 'center',
+	};
+
+	let icon;
+	switch (entry.type) {
+		case 'HealthCheck':
+			const heartIcon = healthCheckRatingToHeartIcon[entry.healthCheckRating];
+			icon = (
+				<>
+					<MedicalServicesIcon fontSize="small" />
+					{heartIcon}
+				</>
+			);
+			break;
+		case 'OccupationalHealthcare':
+			icon = <WorkIcon fontSize="small" />;
+			break;
+		case 'Hospital':
+			icon = <HospitalIcon />;
+			break;
+		default:
+			return assertNever(entry);
+	}
+
+	return (
+		<Card style={cardStyle} >
+			<CardContent>
+				<Typography>{entry.date}{icon}</Typography>
+				{renderEntryDetails(entry)}
+				<Typography><i>{entry.description}</i></Typography>
+				<Typography>diagnosed by {entry.specialist}</Typography>
+			</CardContent>
+		</Card>
+	);
+};
+
+const renderEntryDetails = (entry: Entry) => {
+	switch (entry.type) {
+		case 'HealthCheck':
+			return null; // Return null for 'HealthCheck' entries
+		case 'OccupationalHealthcare':
+			return <Typography>{entry.employerName}</Typography>;
+		case 'Hospital':
+			return <Typography>{entry.discharge.date} {entry.discharge.criteria}</Typography>;
+		default:
+			return assertNever(entry);
+	}
+};
 
 
 const PatientDetailPage = () => {
@@ -56,12 +126,9 @@ const PatientDetailPage = () => {
 			return diagnosis ? diagnosis.name : "Unknown";
 		}
 		return "Loading...";
-	};
-
+	}
 
 	console.log(diagnoses);
-	console.log(patient);
-
 
 	return (
 		<div>
@@ -75,7 +142,7 @@ const PatientDetailPage = () => {
 
 						patient.entries.map((entry, index) => (
 							<div key={index}>
-								<Typography>{entry.date} <i>{entry.description}</i></Typography>
+								<EntryDetails entry={entry} />
 								{entry.diagnosisCodes ? (
 									<List dense disablePadding>
 										{entry.diagnosisCodes.map((code, codeIndex) => (
