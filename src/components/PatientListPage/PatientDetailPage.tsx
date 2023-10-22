@@ -3,12 +3,14 @@ import { useParams } from 'react-router-dom';
 import { Box, Typography, List, ListItem, ListItemText, Card, CardContent } from '@mui/material';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
-import patientService from '../../services/patients';
 import diagnosesService from '../../services/diagnoses';
 import TransgenderIcon from '@mui/icons-material/Transgender';
 import { LocalHospital as HospitalIcon, MedicalServices as MedicalServicesIcon, Work as WorkIcon, Favorite as FavoriteIcon } from '@mui/icons-material';
 
-import { Diagnosis, Patient, Gender, Entry, HealthCheckRating } from "../../types";
+import { Diagnosis, Patient, Gender, Entry, HealthCheckRating, EntryWithoutId } from "../../types";
+import patientService from '../../services/patients';
+import EntryForm from './EntryForm';
+
 
 const assertNever = (value: never): never => {
 	throw new Error(
@@ -126,7 +128,29 @@ const PatientDetailPage = () => {
 		return "Loading...";
 	}
 
-	console.log(diagnoses);
+	//console.log(diagnoses);
+
+	const addEntry = async (patientId: string, newEntry: EntryWithoutId) => {
+		try {
+			console.log(patientId);
+			console.log(newEntry);
+
+			const response = await patientService.addEntry(patientId, newEntry);
+
+			if (response.status === 'OK') {
+				const updatedPatient = response.patient as Patient;
+				setPatient(updatedPatient);
+			} else {
+
+				console.error('Error adding entry:', response.error);
+				return false;
+			}
+		} catch (error) {
+			console.error('Error adding entry:', error);
+			return false;
+		}
+	};
+
 
 	return (
 		<div>
@@ -141,25 +165,30 @@ const PatientDetailPage = () => {
 						patient.entries.map((entry, index) => (
 							<div key={index}>
 								<EntryDetails entry={entry} />
-								<Typography variant="h5">Codes:</Typography>
-								<Card style={cardStyle}>
-									<CardContent>
-										{entry.diagnosisCodes ? (
-											<List dense disablePadding>
-												{entry.diagnosisCodes.map((code, codeIndex) => (
-													<ListItem key={codeIndex}>
-														<ListItemText primary={code} secondary={getDiagnosisDescription(code)} />
-													</ListItem>
-												))}
-											</List>
-										) : null}
-									</CardContent>
-								</Card>
+
+
+								{entry.diagnosisCodes ? (
+									<div>
+										<Typography variant="h5">Codes:</Typography>
+										<Card style={cardStyle}>
+											<CardContent>
+												<List dense disablePadding>
+													{entry.diagnosisCodes.map((code, codeIndex) => (
+														<ListItem key={codeIndex}>
+															<ListItemText primary={code} secondary={getDiagnosisDescription(code)} />
+														</ListItem>
+													))}
+												</List>
+											</CardContent>
+										</Card>
+									</div>
+								) : null}
+
 
 							</div>
 						))
 						: 'No data'}
-
+					<EntryForm patient={patient} addEntry={addEntry} />
 				</Box>
 			) : (
 				<div>Loading...</div>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Patient, PatientFormValues } from "../types";
+import { Patient, PatientFormValues, EntryWithoutId } from "../types";
 
 import { apiBaseUrl } from "../constants";
 
@@ -25,8 +25,25 @@ const create = async (object: PatientFormValues) => {
   return data;
 };
 
+const addEntry = async (patientId: string, newEntry: EntryWithoutId) => {
+  try {
+    console.log(patientId);
+    console.log(newEntry);
+
+    const response = await axios.post(`${apiBaseUrl}/patients/${patientId}/entries`, newEntry);
+
+    if (response.status === 201) {
+      return { status: 'OK', patient: response.data };
+    } else {
+      return { status: 'Error', error: response.data.error };
+    }
+  } catch (error) {
+    return { status: 'Error', error: 'Failed to add entry' };
+  }
+}
+
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
-  getAll, getById, create
+  getAll, getById, create, addEntry
 };
 
