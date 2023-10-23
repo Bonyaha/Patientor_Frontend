@@ -27,7 +27,7 @@ const PatientListPage = ({ patients, setPatients }: Props) => {
     setError(undefined);
   };
 
-  console.log(patients);
+  //console.log(patients);
 
   const submitNewPatient = async (values: PatientFormValues) => {
     try {

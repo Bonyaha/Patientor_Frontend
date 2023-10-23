@@ -1,80 +1,9 @@
-/* import React, { useState } from 'react';
-import { Patient, HealthCheckRating } from "../../types";
-
-interface EntryFormProps {
-	patient: Patient;
-	addEntry: (patientId: string, entry: any) => Promise<boolean | undefined>;
-}
-
-
-const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry }) => {
-	const [entryType, setEntryType] = useState('HealthCheck'); // Default to HealthCheck
-	const [description, setDescription] = useState('');
-	const [healthCheckRating, setHealthCheckRating] = useState(HealthCheckRating.Healthy);
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		// Construct the entry object based on the selected entryType and field values
-		const entry = {
-			type: entryType,
-			description,
-			healthCheckRating,
-		};
-
-		try {
-			await addEntry(patient.id, entry);
-			// Clear the form fields or perform other actions as needed
-		} catch (error) {
-			// Handle errors and show an error message to the user
-		}
-	};
-
-	return (
-		<form onSubmit={handleSubmit}>
-			<label>
-				Entry Type:
-				<select value={entryType} onChange={(e) => setEntryType(e.target.value)}>
-					<option value="HealthCheck">Health Check</option>
-					<option value="OccupationalHealthcare">Occupational Healthcare</option>
-					<option value="Hospital">Hospital</option>
-				</select>
-			</label>
-			<br />
-
-			<label>
-				Description:
-				<input type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
-			</label>
-			<br />
-
-			<div>
-				<label>
-					Health Check Rating:
-					<select
-						value={healthCheckRating}
-						onChange={(e) => setHealthCheckRating(Number(e.target.value))}
-					>
-						<option value={0}>Healthy</option>
-						<option value={1}>Low Risk</option>
-						<option value={2}>High Risk</option>
-						<option value={3}>Critical Risk</option>
-					</select>
-				</label>
-			</div>
-
-			<button type="submit">Add Entry</button>
-		</form>
-	);
-};
-
-export default EntryForm;
- */
-
 import React, { useState } from 'react';
 import {
 	Patient,
 	HealthCheckRating,
-	EntryWithoutId
+	EntryWithoutId,
+	Diagnosis
 } from "../../types";
 import {
 	FormControl,
@@ -82,15 +11,17 @@ import {
 	Select,
 	MenuItem,
 	TextField,
-	Button,
+	Button, Grid, Checkbox, ListItemText
 } from '@mui/material';
 
 interface EntryFormProps {
 	patient: Patient;
 	addEntry: (patientId: string, entry: EntryWithoutId) => Promise<boolean | undefined>;
+	closeModal: () => void;
+	diagnoses: Diagnosis[];
 }
 
-const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry }) => {
+const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry, closeModal, diagnoses }) => {
 	const [entryType, setEntryType] = useState('HealthCheck');
 	const [description, setDescription] = useState('');
 	const [date, setDate] = useState('');
@@ -102,10 +33,11 @@ const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry }) => {
 	const [endDate, setEndDate] = useState('');
 	const [dischargeDate, setDischargeDate] = useState('');
 	const [dischargeCriteria, setDischargeCriteria] = useState('');
+	const [selectedDiagnosisCodes, setSelectedDiagnosisCodes] = useState<string | string[]>([]);
 
-	const handleAddDiagnosisCode = () => {
+	/* const handleAddDiagnosisCode = () => {
 		// You can implement this function to add diagnosis codes to the state
-	};
+	}; */
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -152,29 +84,34 @@ const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry }) => {
 			default:
 				throw new Error('Unexpected entry type');
 		}
+		console.log(entry);
 
 		try {
 			await addEntry(patient.id, entry);
-			// Clear the form fields or perform other actions as needed
+			closeModal();
 		} catch (error) {
 			// Handle errors and show an error message to the user
 		}
 	};
+	console.log(diagnoses);
+	console.log(selectedDiagnosisCodes);
 
 	return (
 		<form onSubmit={handleSubmit}>
-			<FormControl variant="outlined" fullWidth>
-				<InputLabel>Entry Type</InputLabel>
-				<Select
-					value={entryType}
-					onChange={(e) => setEntryType(e.target.value as string)}
-					label="Entry Type"
-				>
-					<MenuItem value="HealthCheck">Health Check</MenuItem>
-					<MenuItem value="OccupationalHealthcare">Occupational Healthcare</MenuItem>
-					<MenuItem value="Hospital">Hospital</MenuItem>
-				</Select>
-			</FormControl>
+			<div style={{ marginTop: '16px' }}>
+				<FormControl variant="outlined" fullWidth>
+					<InputLabel>Entry Type</InputLabel>
+					<Select
+						value={entryType}
+						onChange={(e) => setEntryType(e.target.value as string)}
+						label="Entry Type"
+					>
+						<MenuItem value="HealthCheck">Health Check</MenuItem>
+						<MenuItem value="OccupationalHealthcare">Occupational Healthcare</MenuItem>
+						<MenuItem value="Hospital">Hospital</MenuItem>
+					</Select>
+				</FormControl>
+			</div>
 			<br />
 
 			<TextField
@@ -183,66 +120,93 @@ const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry }) => {
 				fullWidth
 				value={description}
 				onChange={(e) => setDescription(e.target.value)}
+				required
 			/>
 			<br />
-
-			<TextField
-				label="Date"
-				variant="outlined"
-				fullWidth
-				value={date}
-				onChange={(e) => setDate(e.target.value)}
-			/>
-			<br />
-
-			<TextField
-				label="Specialist"
-				variant="outlined"
-				fullWidth
-				value={specialist}
-				onChange={(e) => setSpecialist(e.target.value)}
-			/>
-			<br />
-
-			{entryType === 'HealthCheck' && (
-				<FormControl variant="outlined" fullWidth>
-					<InputLabel>Health Check Rating</InputLabel>
-					<Select
-						value={healthCheckRating}
-						onChange={(e) => setHealthCheckRating(e.target.value as HealthCheckRating)}
-						label="Health Check Rating"
-					>
-						<MenuItem value={HealthCheckRating.Healthy}>Healthy</MenuItem>
-						<MenuItem value={HealthCheckRating.LowRisk}>Low Risk</MenuItem>
-						<MenuItem value={HealthCheckRating.HighRisk}>High Risk</MenuItem>
-						<MenuItem value={HealthCheckRating.CriticalRisk}>Critical Risk</MenuItem>
-					</Select>
-				</FormControl>
-			)}
-
-			{entryType === 'OccupationalHealthcare' && (
+			<div style={{ marginTop: '16px' }}>
+				<InputLabel>Date</InputLabel>
 				<TextField
-					label="Employer Name"
 					variant="outlined"
 					fullWidth
-					value={employerName}
-					onChange={(e) => setEmployerName(e.target.value)}
+					type="date"
+					value={date}
+					onChange={(e) => setDate(e.target.value)}
+					required
 				/>
-			)}
+				<br />
+			</div>
+			<div style={{ marginTop: '16px' }}>
+				<TextField
+					label="Specialist"
+					variant="outlined"
+					fullWidth
+					value={specialist}
+					onChange={(e) => setSpecialist(e.target.value)}
+					required
+				/>
+				<br />
+			</div>
+
+			<FormControl fullWidth>
+				<InputLabel>Diagnosis Codes</InputLabel>
+				<Select
+					multiple
+					value={diagnosisCodes}
+					onChange={(event) => {
+						setDiagnosisCodes(Array.isArray(event.target.value) ? event.target.value : [event.target.value])
+					}}
+					renderValue={(selected) => selected} // Display selected codes as a comma-separated list
+				>
+					{diagnoses.map((code) => (
+						<MenuItem key={code.code} value={code.code}>
+							<Checkbox checked={diagnosisCodes.includes(code.code)} />
+							<ListItemText primary={code.code} />
+						</MenuItem>
+					))}
+				</Select>
+			</FormControl>
+
+
+			<div style={{ marginTop: '16px' }}>
+				{entryType === 'HealthCheck' && (
+					<FormControl variant="outlined" fullWidth>
+						<InputLabel>Health Check Rating</InputLabel>
+						<Select
+							value={healthCheckRating}
+							onChange={(e) => setHealthCheckRating(e.target.value as HealthCheckRating)}
+							label="Health Check Rating"
+						>
+							<MenuItem value={HealthCheckRating.Healthy}>Healthy</MenuItem>
+							<MenuItem value={HealthCheckRating.LowRisk}>Low Risk</MenuItem>
+							<MenuItem value={HealthCheckRating.HighRisk}>High Risk</MenuItem>
+							<MenuItem value={HealthCheckRating.CriticalRisk}>Critical Risk</MenuItem>
+						</Select>
+					</FormControl>
+				)}
+			</div>
 
 			{entryType === 'OccupationalHealthcare' && (
 				<div>
 					<TextField
-						label="Start Date"
+						label="Employer Name"
 						variant="outlined"
 						fullWidth
+						value={employerName}
+						required
+						onChange={(e) => setEmployerName(e.target.value)}
+					/>
+					<InputLabel>Sick Leave</InputLabel>
+					<TextField
+						variant="outlined"
+						fullWidth
+						type="date"
 						value={startDate}
 						onChange={(e) => setStartDate(e.target.value)}
 					/>
 					<TextField
-						label="End Date"
 						variant="outlined"
 						fullWidth
+						type="date"
 						value={endDate}
 						onChange={(e) => setEndDate(e.target.value)}
 					/>
@@ -251,10 +215,11 @@ const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry }) => {
 
 			{entryType === 'Hospital' && (
 				<div>
+					<InputLabel>Discharge date</InputLabel>
 					<TextField
-						label="Discharge Date"
 						variant="outlined"
 						fullWidth
+						type="date"
 						value={dischargeDate}
 						onChange={(e) => setDischargeDate(e.target.value)}
 					/>
@@ -268,12 +233,18 @@ const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry }) => {
 				</div>
 			)}
 
-			{/* Add more conditionally rendered fields based on the entry type */}
-			{/* You can also add buttons to add diagnosis codes and other fields as needed */}
-
-			<Button type="submit" variant="contained" color="primary">
-				Add Entry
-			</Button>
+			<Grid container justifyContent="space-between">
+				<Grid item>
+					<Button variant="contained" style={{ backgroundColor: 'red', color: 'white' }} onClick={closeModal}>
+						Cancel
+					</Button>
+				</Grid>
+				<Grid item>
+					<Button type="submit" variant="contained" color="primary">
+						Add
+					</Button>
+				</Grid>
+			</Grid>
 		</form>
 	);
 };

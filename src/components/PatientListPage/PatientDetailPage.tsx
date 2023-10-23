@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, List, ListItem, ListItemText, Card, CardContent } from '@mui/material';
+import { Button, Modal, Box, Typography, List, ListItem, ListItemText, Card, CardContent, Dialog, DialogTitle, DialogContent, Alert, Divider } from '@mui/material';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import diagnosesService from '../../services/diagnoses';
@@ -21,7 +21,7 @@ const assertNever = (value: never): never => {
 const healthCheckRatingToHeartIcon = {
 	[HealthCheckRating.Healthy]: <FavoriteIcon style={{ color: 'green' }} />,
 	[HealthCheckRating.LowRisk]: <FavoriteIcon style={{ color: 'yellow' }} />,
-	[HealthCheckRating.HighRisk]: <FavoriteIcon style={{ color: 'red' }} />,
+	[HealthCheckRating.HighRisk]: <FavoriteIcon style={{ color: 'orange' }} />,
 	[HealthCheckRating.CriticalRisk]: <FavoriteIcon style={{ color: 'red' }} />
 };
 const cardStyle = {
@@ -85,6 +85,16 @@ const PatientDetailPage = () => {
 	const id = params.id as string; // Extract and cast id to string
 	const [patient, setPatient] = useState<Patient | null>(null);
 	const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [error, setError] = useState<string>();
+	const openModal = () => {
+		setIsModalOpen(true);
+	};
+
+	const closeModal = () => {
+		setIsModalOpen(false);
+		setError(undefined);
+	};
 
 	useEffect(() => {
 		const fetchPatientData = async () => {
@@ -106,7 +116,7 @@ const PatientDetailPage = () => {
 
 		void fetchPatientData();
 		void fetchDiagnoses();
-	}, [id]);
+	}, []);
 
 
 	const getGenderIcon = (gender: Gender) => {
@@ -132,13 +142,16 @@ const PatientDetailPage = () => {
 
 	const addEntry = async (patientId: string, newEntry: EntryWithoutId) => {
 		try {
-			console.log(patientId);
-			console.log(newEntry);
+			/* console.log(patientId);
+			console.log(newEntry); */
 
 			const response = await patientService.addEntry(patientId, newEntry);
+			console.log(response);
 
 			if (response.status === 'OK') {
 				const updatedPatient = response.patient as Patient;
+				console.log(updatedPatient);
+
 				setPatient(updatedPatient);
 			} else {
 
@@ -150,6 +163,7 @@ const PatientDetailPage = () => {
 			return false;
 		}
 	};
+
 
 
 	return (
@@ -167,7 +181,7 @@ const PatientDetailPage = () => {
 								<EntryDetails entry={entry} />
 
 
-								{entry.diagnosisCodes ? (
+								{entry.diagnosisCodes && entry.diagnosisCodes.length > 0 ? (
 									<div>
 										<Typography variant="h5">Codes:</Typography>
 										<Card style={cardStyle}>
@@ -188,7 +202,35 @@ const PatientDetailPage = () => {
 							</div>
 						))
 						: 'No data'}
-					<EntryForm patient={patient} addEntry={addEntry} />
+					<Button variant="contained" color="primary" onClick={openModal}>
+						Add New Entry
+					</Button>
+					{/* <Modal open={isModalOpen} onClose={closeModal}>
+						<Box
+							sx={{
+								position: 'absolute',
+								top: '50%',
+								left: '50%',
+								transform: 'translate(-50%, -50%)',
+								width: 600,
+								bgcolor: 'background.paper',
+								boxShadow: 24,
+								p: 4,
+							}}
+						>
+							<Typography variant="h6">New Entry</Typography>
+							<Divider />
+							<EntryForm patient={patient} addEntry={addEntry} closeModal={closeModal} diagnoses={diagnoses} />
+						</Box>
+					</Modal> */}
+					<Dialog fullWidth={true} open={isModalOpen} onClose={() => closeModal()}>
+						<DialogTitle>Add a new patient</DialogTitle>
+						<Divider />
+						<DialogContent>
+							{error && <Alert severity="error">{error}</Alert>}
+							<EntryForm patient={patient} addEntry={addEntry} closeModal={closeModal} diagnoses={diagnoses} />
+						</DialogContent>
+					</Dialog>
 				</Box>
 			) : (
 				<div>Loading...</div>

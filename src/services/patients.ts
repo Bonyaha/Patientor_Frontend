@@ -31,8 +31,9 @@ const addEntry = async (patientId: string, newEntry: EntryWithoutId) => {
     console.log(newEntry);
 
     const response = await axios.post(`${apiBaseUrl}/patients/${patientId}/entries`, newEntry);
+    console.log(response);
 
-    if (response.status === 201) {
+    if (response.status === 200) {
       return { status: 'OK', patient: response.data };
     } else {
       return { status: 'Error', error: response.data.error };
