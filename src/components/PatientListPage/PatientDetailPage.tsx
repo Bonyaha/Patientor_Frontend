@@ -71,7 +71,14 @@ const renderEntryDetails = (entry: Entry) => {
 		case 'HealthCheck':
 			return null; // Return null for 'HealthCheck' entries
 		case 'OccupationalHealthcare':
-			return <Typography>{entry.employerName}</Typography>;
+			return (
+				<div>
+					<Typography>{entry.employerName}</Typography>
+					<Typography>Sick leave:</Typography>
+					<Typography>Start date: {entry.sickLeave?.startDate}</Typography>
+					<Typography>End date: {entry.sickLeave?.endDate}</Typography>
+				</div>
+			);
 		case 'Hospital':
 			return <Typography>{entry.discharge.date} {entry.discharge.criteria}</Typography>;
 		default:
