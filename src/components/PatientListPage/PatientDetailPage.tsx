@@ -80,7 +80,13 @@ const renderEntryDetails = (entry: Entry) => {
 				</div>
 			);
 		case 'Hospital':
-			return <Typography>{entry.discharge.date} {entry.discharge.criteria}</Typography>;
+			return (
+				<div>
+					<Typography>Discharge date:{entry.discharge.date}</Typography>
+					<Typography>Criteria:{entry.discharge.criteria}</Typography>
+				</div>
+
+			)
 		default:
 			return assertNever(entry);
 	}
