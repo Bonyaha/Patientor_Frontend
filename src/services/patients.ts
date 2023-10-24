@@ -38,9 +38,14 @@ const addEntry = async (patientId: string, newEntry: EntryWithoutId) => {
     } else {
       return { status: 'Error', error: response.data.error };
     }
-  } catch (error) {
-    return { status: 'Error', error: 'Failed to add entry' };
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong.';
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data;
+    }
+    return { status: 'Error', error: errorMessage };
   }
+
 }
 
 // eslint-disable-next-line import/no-anonymous-default-export

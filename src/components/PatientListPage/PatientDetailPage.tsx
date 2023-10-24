@@ -99,14 +99,16 @@ const PatientDetailPage = () => {
 	const [patient, setPatient] = useState<Patient | null>(null);
 	const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [error, setError] = useState<string>();
+	const [error, setError] = useState<string>('');
+	const [showAlert, setShowAlert] = useState(false);
+
 	const openModal = () => {
 		setIsModalOpen(true);
 	};
 
 	const closeModal = () => {
 		setIsModalOpen(false);
-		setError(undefined);
+		//setError('');
 	};
 
 	useEffect(() => {
@@ -155,9 +157,6 @@ const PatientDetailPage = () => {
 
 	const addEntry = async (patientId: string, newEntry: EntryWithoutId) => {
 		try {
-			/* console.log(patientId);
-			console.log(newEntry); */
-
 			const response = await patientService.addEntry(patientId, newEntry);
 			console.log(response);
 
@@ -167,20 +166,30 @@ const PatientDetailPage = () => {
 
 				setPatient(updatedPatient);
 			} else {
-
-				console.error('Error adding entry:', response.error);
-				return false;
+				setError(response.error || 'An error occurred');
+				setShowAlert(true);
+				setTimeout(() => {
+					setShowAlert(false);
+				}, 5000);
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Error adding entry:', error);
-			return false;
+			setError(error || 'An error occurred');
+			setShowAlert(true);
+			setTimeout(() => {
+				setShowAlert(false);
+			}, 5000);
 		}
 	};
+
+	console.log(isModalOpen);
+	console.log(error);
 
 
 
 	return (
 		<div>
+			{showAlert && <Alert severity="error">{error}</Alert>}
 			{patient ? (
 				<Box>
 					<Typography variant="h4">{patient.name} {getGenderIcon(patient.gender)}</Typography>
@@ -210,37 +219,17 @@ const PatientDetailPage = () => {
 										</Card>
 									</div>
 								) : null}
-
-
 							</div>
 						))
 						: 'No data'}
 					<Button variant="contained" color="primary" onClick={openModal}>
 						Add New Entry
 					</Button>
-					{/* <Modal open={isModalOpen} onClose={closeModal}>
-						<Box
-							sx={{
-								position: 'absolute',
-								top: '50%',
-								left: '50%',
-								transform: 'translate(-50%, -50%)',
-								width: 600,
-								bgcolor: 'background.paper',
-								boxShadow: 24,
-								p: 4,
-							}}
-						>
-							<Typography variant="h6">New Entry</Typography>
-							<Divider />
-							<EntryForm patient={patient} addEntry={addEntry} closeModal={closeModal} diagnoses={diagnoses} />
-						</Box>
-					</Modal> */}
 					<Dialog fullWidth={true} open={isModalOpen} onClose={() => closeModal()}>
 						<DialogTitle>Add a new patient</DialogTitle>
 						<Divider />
 						<DialogContent>
-							{error && <Alert severity="error">{error}</Alert>}
+
 							<EntryForm patient={patient} addEntry={addEntry} closeModal={closeModal} diagnoses={diagnoses} />
 						</DialogContent>
 					</Dialog>

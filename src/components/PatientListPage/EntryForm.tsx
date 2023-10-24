@@ -16,7 +16,7 @@ import {
 
 interface EntryFormProps {
 	patient: Patient;
-	addEntry: (patientId: string, entry: EntryWithoutId) => Promise<boolean | undefined>;
+	addEntry: (patientId: string, entry: EntryWithoutId) => Promise<void>;
 	closeModal: () => void;
 	diagnoses: Diagnosis[];
 }
@@ -33,11 +33,6 @@ const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry, closeModal, di
 	const [endDate, setEndDate] = useState('');
 	const [dischargeDate, setDischargeDate] = useState('');
 	const [dischargeCriteria, setDischargeCriteria] = useState('');
-	const [selectedDiagnosisCodes, setSelectedDiagnosisCodes] = useState<string | string[]>([]);
-
-	/* const handleAddDiagnosisCode = () => {
-		// You can implement this function to add diagnosis codes to the state
-	}; */
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -90,11 +85,15 @@ const EntryForm: React.FC<EntryFormProps> = ({ patient, addEntry, closeModal, di
 			await addEntry(patient.id, entry);
 			closeModal();
 		} catch (error) {
-			// Handle errors and show an error message to the user
+			if (error instanceof Error) {
+				console.log(error);
+			} else {
+				console.log('An error occurred');
+			}
 		}
 	};
 	console.log(diagnoses);
-	console.log(selectedDiagnosisCodes);
+
 
 	return (
 		<form onSubmit={handleSubmit}>
