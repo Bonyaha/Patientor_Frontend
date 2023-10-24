@@ -21,7 +21,6 @@ const create = async (object: PatientFormValues) => {
     `${apiBaseUrl}/patients`,
     object
   );
-
   return data;
 };
 

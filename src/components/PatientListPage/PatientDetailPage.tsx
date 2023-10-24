@@ -194,14 +194,14 @@ const PatientDetailPage = () => {
 				<Box>
 					<Typography variant="h4">{patient.name} {getGenderIcon(patient.gender)}</Typography>
 					<Typography>ssn: {patient.ssn}</Typography>
-					<Typography>occupation: {patient.occupation}</Typography>
-					<Typography variant="h5">Entries:</Typography>
+					<Typography style={{ marginBottom: '20px' }}>occupation: {patient.occupation}</Typography>
+
 					{patient.entries.length > 0 ?
 
 						patient.entries.map((entry, index) => (
 							<div key={index}>
+								<Typography variant="h5">Entries:</Typography>
 								<EntryDetails entry={entry} />
-
 
 								{entry.diagnosisCodes && entry.diagnosisCodes.length > 0 ? (
 									<div>
@@ -221,10 +221,12 @@ const PatientDetailPage = () => {
 								) : null}
 							</div>
 						))
-						: 'No data'}
+						: <Typography variant="h5" style={{ marginBottom: '20px' }}>Entries: No data</Typography>
+					}
 					<Button variant="contained" color="primary" onClick={openModal}>
 						Add New Entry
 					</Button>
+
 					<Dialog fullWidth={true} open={isModalOpen} onClose={() => closeModal()}>
 						<DialogTitle>Add a new patient</DialogTitle>
 						<Divider />
